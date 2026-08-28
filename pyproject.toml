@@ -13,12 +13,20 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
+app = [
+    "streamlit>=1.37",
+    "pandas>=2.0",
+    "plotly>=5.0",
+]
 
 [project.scripts]
 paris = "paris.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["paris*"]
+
+[tool.setuptools.package-data]
+paris = ["storage/schema.sql"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

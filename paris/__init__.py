@@ -17,6 +17,7 @@ from .match_analysis import MatchBoard, analyze_match
 from .pipeline import Analysis, analyze_prop
 from .providers import load_match
 from .report import render_board, render_prop
+from .serialize import analysis_to_record
 
 __version__ = "1.0.0"
 
@@ -32,4 +33,5 @@ __all__ = [
     "load_match",
     "render_board",
     "render_prop",
+    "analysis_to_record",
 ]

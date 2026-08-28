@@ -34,6 +34,11 @@ the parts the spec insists must be *quantitative and never invented by the LLM*
 | §15 MODE B, §62, §66 match-analysis orchestrator + ranked board | `paris/match_analysis.py` |
 | §60–62 report rendering | `paris/report.py` |
 | §64 anti-hallucination data boundary | `paris/providers/` |
+| UI plan §31 normalized analysis record | `paris/serialize.py` |
+| UI plan §5–8/37 UI input → contracts bridge | `paris/ui_bridge.py` |
+| UI plan §18–19 SQLite persistence + audit | `paris/storage/` |
+| UI plan §20 calibration / Brier / ROI / CLV | `paris/metrics.py` |
+| UI plan §3–20 Streamlit analyst workstation | `app/` |
 
 ## The decision chain (§2)
 
@@ -100,12 +105,41 @@ mu = base_rate  ×  opportunity_scale  ×  form_factor  ×  matchup_multiplier
 Each step is recorded as a driver string so the report can explain what pushes
 the number up or down (the "AI Analyzer", §16.8).
 
+## Analyst workstation (Streamlit UI)
+
+A no-JSON, no-CLI interface for analysts, built directly on the engine (it never
+recomputes numbers — plan §2/§39). See `docs/PARIS_UI_plan.md` for the full plan.
+
+```
+pip install -e '.[app]'                # streamlit + pandas + plotly
+streamlit run app/Home.py
+```
+
+Pages:
+
+| Page | What it does |
+|---|---|
+| **Home** | dashboard — saved-analysis counts, average model edge |
+| **Match Analyzer** | build an event + props (with a recent-form table editor), click **ANALYZE MATCH**, read the ranked board with per-prop Quality-Gate, sensitivity chart and adversarial risks; save to SQLite |
+| **PrizePicks** | pick'em props led by P(MORE)/P(LESS); manual builder or JSON import |
+| **Edge Finder** | filter & rank every saved candidate by decision quality (PASS → certainty → edge → EV → grade), never EV alone |
+| **Results** | resolve analyses after the match; ROI / CLV / hit rate |
+| **Model Health** | calibration buckets, Brier score, log loss (spec 25) |
+
+`WAIT` and `NO BET` are first-class outcomes in the UI, and **historical hit rate
+is always shown separately from model probability** (plan §7/§14).
+
+The **SQLite persistence layer** (`paris/storage/`) saves the normalized analysis
+record (`paris/serialize.py`) plus post-event audit fields, and
+`paris/metrics.py` computes calibration/Brier/log-loss/ROI/CLV over resolved rows.
+
 ## Install / develop
 
 ```
 pip install -e .            # exposes the `paris` console command
 pip install -e '.[dev]'     # + pytest
-python -m pytest -q         # 22 tests, deterministic, no network
+pip install -e '.[app]'     # + streamlit UI deps
+python -m pytest -q         # 37 tests, deterministic, no network
 ```
 
 ## Scope & honesty
