@@ -1,0 +1,119 @@
+{
+  "_note": "ILLUSTRATIVE SAMPLE DATA ONLY — not live odds, stats, or lineups. The system never invents data (spec 64); a real run must be fed verified, sourced numbers from a research + verifier stage. These fixed numbers exist purely to demonstrate the pipeline end to end.",
+  "event": {
+    "sport": "football",
+    "competition": "La Liga",
+    "home": "Real Madrid",
+    "away": "Barcelona",
+    "date": "2026-04-12",
+    "venue": "Santiago Bernabeu",
+    "kickoff": "2026-04-12T20:00:00Z"
+  },
+  "props": [
+    {
+      "subject": "Vinicius Jr",
+      "market": "shots",
+      "side": "over",
+      "distribution": "poisson",
+      "base_rate_per90": 3.2,
+      "market_line": { "line": 2.5, "over_odds": -130, "under_odds": 110, "book": "SAMPLE", "timestamp": "2026-04-12T15:00:00Z" },
+      "form": [
+        { "window": "L5", "mean": 3.6, "median": 4, "stdev": 1.5 },
+        { "window": "L10", "mean": 3.4, "median": 3, "stdev": 1.6, "hit_rate_over": 0.7 },
+        { "window": "Season", "mean": 3.2, "stdev": 1.7 }
+      ],
+      "opportunity": { "metric": "minutes", "expected": 85, "low": 70, "high": 90, "certainty": "B", "starter_prob": 0.95 },
+      "matchup_multiplier": 1.05,
+      "matchup_note": "Barcelona high defensive line concedes transition shots",
+      "verified": true,
+      "sources": ["SAMPLE: official league stats", "SAMPLE: probable XI multi-source"],
+      "reasons_for": ["primary shot taker on the left", "opponent high line invites transitions"],
+      "reasons_against": ["early substitution risk if match is settled"],
+      "invalidation": "not in the official XI, or moved off the left wing"
+    },
+    {
+      "subject": "Jude Bellingham",
+      "market": "shots_on_target",
+      "side": "over",
+      "distribution": "poisson",
+      "base_rate_per90": 0.95,
+      "market_line": { "line": 0.5, "over_odds": -140, "under_odds": 115, "book": "SAMPLE", "timestamp": "2026-04-12T15:00:00Z" },
+      "form": [
+        { "window": "L10", "mean": 1.0, "stdev": 0.9, "hit_rate_over": 0.6 },
+        { "window": "Season", "mean": 0.95, "stdev": 0.95 }
+      ],
+      "opportunity": { "metric": "minutes", "expected": 88, "low": 80, "high": 90, "certainty": "A", "starter_prob": 0.98 },
+      "matchup_multiplier": 1.0,
+      "verified": true,
+      "sources": ["SAMPLE: official league stats"]
+    },
+    {
+      "subject": "Aurelien Tchouameni",
+      "market": "passes",
+      "side": "over",
+      "distribution": "normal",
+      "base_rate_per90": 76,
+      "variance_hint": 144,
+      "market_line": { "line": 70.5, "over_odds": -110, "under_odds": -110, "book": "SAMPLE", "timestamp": "2026-04-12T15:00:00Z" },
+      "form": [
+        { "window": "L10", "mean": 74, "stdev": 12 },
+        { "window": "Season", "mean": 76, "stdev": 12 }
+      ],
+      "opportunity": { "metric": "minutes", "expected": 85, "certainty": "B", "starter_prob": 0.9 },
+      "matchup_multiplier": 0.95,
+      "matchup_note": "Barcelona possession dominance lowers Madrid's team passing volume",
+      "verified": true,
+      "sources": ["SAMPLE: official league stats"]
+    },
+    {
+      "subject": "Antonio Rudiger",
+      "market": "clearances",
+      "side": "over",
+      "distribution": "negbin",
+      "base_rate_per90": 4.2,
+      "variance_hint": 7.0,
+      "market_line": { "line": 3.5, "over_odds": -115, "under_odds": -105, "book": "SAMPLE", "timestamp": "2026-04-12T15:00:00Z" },
+      "form": [
+        { "window": "L10", "mean": 4.4, "stdev": 2.6, "hit_rate_over": 0.6 },
+        { "window": "Season", "mean": 4.2, "stdev": 2.6 }
+      ],
+      "opportunity": { "metric": "minutes", "expected": 90, "certainty": "B", "starter_prob": 0.92 },
+      "matchup_multiplier": 1.1,
+      "matchup_note": "Barcelona crossing volume raises central defensive clearances",
+      "verified": true,
+      "sources": ["SAMPLE: official league stats"]
+    },
+    {
+      "subject": "Rodrygo",
+      "market": "shots",
+      "side": "over",
+      "distribution": "poisson",
+      "base_rate_per90": 2.4,
+      "market_line": { "line": 1.5, "over_odds": -125, "under_odds": 105, "book": "SAMPLE", "timestamp": "2026-04-12T15:00:00Z" },
+      "form": [
+        { "window": "L10", "mean": 2.3, "stdev": 1.4 },
+        { "window": "Season", "mean": 2.4, "stdev": 1.5 }
+      ],
+      "opportunity": { "metric": "minutes", "expected": 70, "low": 0, "high": 90, "certainty": "C", "starter_prob": 0.55, "notes": "rotation risk, congested calendar" },
+      "matchup_multiplier": 1.0,
+      "verified": true,
+      "sources": ["SAMPLE: beat-writer rotation report"]
+    },
+    {
+      "subject": "Robert Lewandowski",
+      "market": "shots",
+      "side": "more",
+      "distribution": "poisson",
+      "base_rate_per90": 3.0,
+      "market_line": { "line": 2.5, "payout_multiplier": 3.0, "book": "SAMPLE-PICKEM", "timestamp": "2026-04-12T15:00:00Z" },
+      "form": [
+        { "window": "L10", "mean": 3.1, "stdev": 1.6 },
+        { "window": "Season", "mean": 3.0, "stdev": 1.7 }
+      ],
+      "opportunity": { "metric": "minutes", "expected": 88, "certainty": "A", "starter_prob": 0.97 },
+      "matchup_multiplier": 1.0,
+      "verified": true,
+      "sources": ["SAMPLE: official league stats"]
+    }
+  ]
+}

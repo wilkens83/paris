@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paris"
+version = "1.0.0"
+description = "A disciplined sports-betting decision-support system (Systeme Maitre) — match analysis pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+paris = "paris.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["paris*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
