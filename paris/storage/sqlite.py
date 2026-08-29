@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -39,10 +40,15 @@ ERROR_CATEGORIES = [
 class AnalysisStore:
     def __init__(self, path: str | Path = "paris.db"):
         self.path = str(path)
-        self._conn = sqlite3.connect(self.path)
+        # check_same_thread=False: Streamlit reruns each script in a fresh
+        # thread, so one cached store is used across threads. A lock serializes
+        # access so those cross-thread uses stay safe.
+        self._conn = sqlite3.connect(self.path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
-        self._conn.executescript(_SCHEMA.read_text(encoding="utf-8"))
-        self._conn.commit()
+        self._lock = threading.RLock()
+        with self._lock:
+            self._conn.executescript(_SCHEMA.read_text(encoding="utf-8"))
+            self._conn.commit()
 
     def close(self) -> None:
         self._conn.close()
@@ -90,10 +96,11 @@ class AnalysisStore:
         }
         cols = ", ".join(row.keys())
         placeholders = ", ".join(f":{k}" for k in row)
-        self._conn.execute(
-            f"INSERT OR REPLACE INTO analyses ({cols}) VALUES ({placeholders})", row
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.execute(
+                f"INSERT OR REPLACE INTO analyses ({cols}) VALUES ({placeholders})", row
+            )
+            self._conn.commit()
         return aid
 
     def save_board(self, board, event: Event | None = None) -> list[str]:
@@ -125,29 +132,31 @@ class AnalysisStore:
         if result is None:
             result = _grade_result(actual_stat, line, side)
         projection_error = actual_stat - row["projection"]
-        self._conn.execute(
-            """
-            UPDATE analyses SET
-                actual_stat = ?, actual_opportunity = ?, result = ?,
-                closing_line = ?, closing_price = ?, clv = ?,
-                projection_error = ?, error_category = ?, resolved_at = ?
-            WHERE analysis_id = ?
-            """,
-            (
-                actual_stat, actual_opportunity, result,
-                closing_line, closing_price, clv,
-                projection_error, error_category, _now_iso(),
-                analysis_id,
-            ),
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.execute(
+                """
+                UPDATE analyses SET
+                    actual_stat = ?, actual_opportunity = ?, result = ?,
+                    closing_line = ?, closing_price = ?, clv = ?,
+                    projection_error = ?, error_category = ?, resolved_at = ?
+                WHERE analysis_id = ?
+                """,
+                (
+                    actual_stat, actual_opportunity, result,
+                    closing_line, closing_price, clv,
+                    projection_error, error_category, _now_iso(),
+                    analysis_id,
+                ),
+            )
+            self._conn.commit()
 
     # ------------------------------------------------------------------ #
     # read
     # ------------------------------------------------------------------ #
     def get(self, analysis_id: str) -> sqlite3.Row | None:
-        cur = self._conn.execute("SELECT * FROM analyses WHERE analysis_id = ?", (analysis_id,))
-        return cur.fetchone()
+        with self._lock:
+            cur = self._conn.execute("SELECT * FROM analyses WHERE analysis_id = ?", (analysis_id,))
+            return cur.fetchone()
 
     def list(
         self,
@@ -166,13 +175,15 @@ class AnalysisStore:
             clauses.append("result IS NULL")
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         params.append(limit)
-        cur = self._conn.execute(
-            f"SELECT * FROM analyses {where} ORDER BY created_at DESC LIMIT ?", params
-        )
-        return [dict(r) for r in cur.fetchall()]
+        with self._lock:
+            cur = self._conn.execute(
+                f"SELECT * FROM analyses {where} ORDER BY created_at DESC LIMIT ?", params
+            )
+            return [dict(r) for r in cur.fetchall()]
 
     def count(self) -> int:
-        return self._conn.execute("SELECT COUNT(*) FROM analyses").fetchone()[0]
+        with self._lock:
+            return self._conn.execute("SELECT COUNT(*) FROM analyses").fetchone()[0]
 
 
 def _grade_result(actual: float, line: float, side: str) -> str:
