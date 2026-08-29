@@ -1,9 +1,13 @@
-"""File-based verified-data provider.
+"""File-based provider — TEST / OFFLINE USE ONLY (directive 2, 6).
 
-Loads a MatchRequest from a JSON document. The JSON is the "verified data"
-boundary: whoever authors it (a human analyst, or an upstream Research +
-Verifier stage) is asserting the numbers are checked and sourced. The pipeline
-then does only deterministic math on top.
+Loads a MatchRequest from a JSON document. This is NOT a production data source
+and must never back the normal user workflow. It exists only for:
+- deterministic automated tests (see tests/fixtures/),
+- offline import/export and reproducibility,
+- an explicit user-supplied file in a clearly-labelled developer/expert mode.
+
+Production data comes from the real providers (ApiFootballProvider,
+SportsGameOddsProvider), never from this file loader.
 """
 
 from __future__ import annotations

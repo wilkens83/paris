@@ -3,7 +3,7 @@ from pathlib import Path
 from paris import analyze_match, analyze_prop, load_match, render_board
 from paris.contracts import MarketLine, Opportunity, Prop, FormWindow
 
-EXAMPLE = Path(__file__).resolve().parent.parent / "examples" / "real_madrid_vs_barcelona.json"
+EXAMPLE = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "sample_match.json"
 
 
 def _strong_prop() -> Prop:

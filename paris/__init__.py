@@ -1,19 +1,24 @@
-"""paris — a disciplined sports-betting decision-support system.
+"""paris — a production sports-betting decision-support system.
 
-Implements the "Système Maître" master spec: an agentic pipeline that turns a
-match analysis request into ranked, gated, honestly-priced decisions — and is
-happy to answer NO BET.
+Real data → automatic feature derivation → verification → quantitative model →
+probability → market math → edge/EV → quality gate → decision. The system never
+fabricates data: when a required live source is missing it says so and stops the
+affected analysis (see PRODUCTION LIVE-DATA POLICY in the docs).
 
-Primary entry point (MODE B — Match Analysis):
+Production analysis path:
 
-    from paris import analyze_match, load_match, render_board
+    from paris.orchestrator import analyze_market   # derive → verify → analyze
+    from paris.providers import ApiFootballProvider, SportsGameOddsProvider
 
-    board = analyze_match(load_match("examples/real_madrid_vs_barcelona.json"))
-    print(render_board(board))
+The quantitative core (``analyze_match``/``analyze_prop``) is preserved and only
+ever consumes normalized, derived inputs. ``load_match`` is retained for
+tests/offline use only, not the production workflow.
 """
 
+from .assemble import assemble_prop
 from .contracts import Event, MarketLine, MatchRequest, Prop
 from .match_analysis import MatchBoard, analyze_match
+from .orchestrator import OrchestratedAnalysis, analyze_market
 from .pipeline import Analysis, analyze_prop
 from .providers import load_match
 from .report import render_board, render_prop
@@ -30,6 +35,9 @@ __all__ = [
     "MatchBoard",
     "analyze_prop",
     "analyze_match",
+    "analyze_market",
+    "assemble_prop",
+    "OrchestratedAnalysis",
     "load_match",
     "render_board",
     "render_prop",

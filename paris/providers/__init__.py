@@ -1,11 +1,36 @@
-"""Data providers.
+"""Data providers (directive 6).
 
-The engines never invent data (spec 64). A provider is the only thing allowed
-to supply verified numbers into the pipeline. The shipped ``FileProvider`` reads
-a JSON file authored by a human or an upstream research/verifier stage — it is a
-deliberate boundary between "verified inputs" and "deterministic math".
+Real providers bring live/historical data into the system with full provenance
+and NO silent fallback to fake data:
+
+    - ApiFootballProvider     : fixtures, teams, players, stats, lineups, injuries
+    - SportsGameOddsProvider  : sportsbook events, player props, lines, prices
+
+``FileProvider`` is retained ONLY for tests, offline import/export and
+reproducibility (directive 2, 6) — it is not a production data source.
 """
 
+from .api_football import ApiFootballProvider
+from .base import (
+    DataProvider,
+    Provenance,
+    ProviderError,
+    ProviderNotConfigured,
+    ProviderResult,
+    ProviderUnavailable,
+)
 from .file_provider import FileProvider, load_match
+from .sports_game_odds import SportsGameOddsProvider
 
-__all__ = ["FileProvider", "load_match"]
+__all__ = [
+    "DataProvider",
+    "Provenance",
+    "ProviderResult",
+    "ProviderError",
+    "ProviderNotConfigured",
+    "ProviderUnavailable",
+    "ApiFootballProvider",
+    "SportsGameOddsProvider",
+    "FileProvider",
+    "load_match",
+]

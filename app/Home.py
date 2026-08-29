@@ -1,70 +1,75 @@
-"""PARIS — analyst workstation home / dashboard (plan sections 1, 4)."""
+"""PARIS — Today's Events home (directive 14, 25, 30).
+
+Loads real current events from configured providers. No demo fallback: if a
+live source is not configured, the honest state is shown with setup guidance.
+"""
 
 from __future__ import annotations
 
 import streamlit as st
 
+from live import config_status, fetch_today_events, freshness_label, render_status_banner
 from state import get_store, page_header
 
 st.set_page_config(page_title="PARIS", page_icon="🎯", layout="wide")
 
 page_header(
-    "🎯 PARIS — Analyst Workstation",
-    "Disciplined sports-betting decision support. Verified data → model → "
-    "probability → market → edge → quality gate → decision.",
+    "🎯 PARIS — Live Sports-Betting Analytics",
+    "Real events → real props → automatic features → verification → quantitative "
+    "model → edge / EV → decision.",
 )
 
-store = get_store()
-rows = store.list(limit=1000)
+cfg = config_status()
+if cfg["missing"]:
+    st.subheader("Configuration")
+    st.error("🔌 Live data is not fully configured.")
+    cols = st.columns(2)
+    cols[0].metric("API-Football", "configured" if cfg["api_football"] else "NOT CONFIGURED")
+    cols[1].metric("SportsGameOdds", "configured" if cfg["sportsgameodds"] else "NOT CONFIGURED")
+    st.markdown(
+        "PARIS is a **live-data product**. It does not ship demo matches. Set the "
+        "missing credentials to load real events:\n\n"
+        f"`{'`, `'.join(cfg['missing'])}`\n\n"
+        "Copy `.env.example` to `.env`, add your keys, and reload. "
+        "See the **PRODUCTION LIVE-DATA POLICY** in the README."
+    )
 
-resolved = [r for r in rows if r.get("result")]
-value = [r for r in rows if r.get("decision") in ("STRONG VALUE", "VALUE")]
-waits = [r for r in rows if r.get("decision") == "WAIT"]
-nobet = [r for r in rows if r.get("decision") in ("NO BET", "AVOID", "FAIR")]
-edges = [r["edge"] for r in rows if r.get("edge") is not None]
-
-st.subheader("Saved analyses")
-c = st.columns(5)
-c[0].metric("Props analyzed", len(rows))
-c[1].metric("Value candidates", len(value))
-c[2].metric("WAIT", len(waits))
-c[3].metric("NO BET / Avoid", len(nobet))
-c[4].metric("Avg model edge", f"{(sum(edges)/len(edges)*100):+.1f}pp" if edges else "—")
+st.subheader("Today's events")
+status, result, detail = fetch_today_events()
+if status in ("NOT_CONFIGURED", "UNAVAILABLE"):
+    render_status_banner(status, detail)
+else:
+    fixtures = result.value or []
+    if not fixtures:
+        st.info("No events returned for today from the configured provider.")
+    else:
+        st.caption(f"API-Football · {freshness_label(result)} · {len(fixtures)} fixtures")
+        for fx in fixtures:
+            teams = fx.get("teams", {})
+            home = teams.get("home", {}).get("name", "?")
+            away = teams.get("away", {}).get("name", "?")
+            fixture = fx.get("fixture", {})
+            fid = fixture.get("id", "?")
+            when = fixture.get("date", "")
+            status_txt = fixture.get("status", {}).get("long", "")
+            c = st.columns([5, 2, 2])
+            c[0].markdown(f"**{home} vs {away}**  \n`event {fid}`")
+            c[1].caption(when)
+            c[2].caption(status_txt)
 
 st.divider()
-st.markdown(
-    """
-### Where to go
 
-- **Match Analyzer** — build a match, add props, run the engine, read the ranked board.
-- **PrizePicks** — analyze pick'em props with MORE/LESS probabilities.
-- **Edge Finder** — filter and rank every saved candidate by decision quality.
-- **Results** — resolve analyses after the match and see ROI / CLV / hit rate.
-- **Model Health** — calibration buckets, Brier score, log loss.
-
-The frontend never computes betting numbers — every figure comes from the
-`paris` engine (plan §2 / §39).
-"""
-)
-
-if rows:
-    st.subheader("Most recent")
-    st.dataframe(
-        [
-            {
-                "Created": r["created_at"],
-                "Event": r["event"],
-                "Player": r["subject"],
-                "Market": r["market"],
-                "Line": r["line"],
-                "Decision": r["decision"],
-                "Grade": r["grade"],
-                "Result": r.get("result") or "—",
-            }
-            for r in rows[:15]
-        ],
-        use_container_width=True,
-        hide_index=True,
-    )
+# secondary: saved analyses summary (persistence)
+store = get_store()
+rows = store.list(limit=1000)
+st.subheader("Saved analyses")
+if not rows:
+    st.caption("No analyses saved yet.")
 else:
-    st.info("No saved analyses yet. Start in **Match Analyzer**.")
+    value = [r for r in rows if r.get("decision") in ("STRONG VALUE", "VALUE")]
+    waits = [r for r in rows if r.get("decision") == "WAIT"]
+    c = st.columns(4)
+    c[0].metric("Analyses", len(rows))
+    c[1].metric("Value candidates", len(value))
+    c[2].metric("WAIT", len(waits))
+    c[3].metric("Resolved", len([r for r in rows if r.get("result")]))

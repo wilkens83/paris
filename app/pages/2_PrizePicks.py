@@ -20,6 +20,13 @@ from paris.ui_bridge import run_single_prop          # noqa: E402
 st.set_page_config(page_title="PrizePicks · PARIS", page_icon="🎯", layout="wide")
 page_header("PrizePicks Analyzer", "Pick'em props led by P(MORE) / P(LESS), not the gap.")
 
+st.info(
+    "🔌 **PRIZEPICKS LIVE SOURCE NOT CONFIGURED.** PARIS does not fabricate "
+    "PrizePicks lines (directive 19). Entries below must come from a real "
+    "permitted source or your own current screenshot/import — they are treated "
+    "as user-provided current data, not a live PARIS feed."
+)
+
 picks = ensure_prop_list("pp_props")
 
 tab_manual, tab_json = st.tabs(["➕ Add prop manually", "📄 Import JSON"])

@@ -1,6 +1,40 @@
 # PARIS — USER INTERFACE & PRODUCT IMPLEMENTATION PLAN
 ## Transforming the Existing Quantitative Betting Engine into a Usable Bobby’s Bets–Style Application
 
+> ---
+>
+> # PRODUCTION LIVE-DATA POLICY (authoritative)
+>
+> **PARIS is a production live-data system, not a prototype, demo, sample app, or
+> manual data-entry tool.** This policy overrides any older wording below that
+> describes demo workflows, manual statistical entry, or Streamlit/JSON files as
+> the intended product.
+>
+> - **NO DEMO DATA IN NORMAL RUNTIME.** No bundled demo match, no hard-coded
+>   fixtures, no fabricated odds, no placeholder model outputs.
+> - **NO SAMPLE / MOCK DATA FALLBACK.** Test fixtures live only under `tests/`
+>   and are never displayed as live data.
+> - **NO SILENT FALLBACK.** A missing source yields `DATA SOURCE NOT CONFIGURED`
+>   / `DATA SOURCE UNAVAILABLE` / `WAIT — REQUIRED LIVE DATA IS NOT AVAILABLE`,
+>   and the affected analysis stops. Fake data is never substituted.
+> - **NO MANUAL STATISTICAL ENTRY AS THE PRIMARY WORKFLOW.** Base rates,
+>   L5/L10/L20, variance, expected minutes, starter probability and matchup are
+>   derived automatically from real game logs. Manual entry exists only in a
+>   clearly-labelled *Advanced / Developer Override* marked non-production.
+> - **REAL LIVE/HISTORICAL PROVIDERS ARE REQUIRED** (API-Football / API-Sports,
+>   SportsGameOdds or equivalent). Credentials come from environment variables.
+> - **The frontend never recomputes betting math** — every number comes from the
+>   `paris` quantitative engine.
+> - **The production direction is Next.js → FastAPI → PARIS engine → PostgreSQL →
+>   real providers.** Streamlit is an internal/admin tool, not the final product.
+>
+> Sections further down that predate this policy are retained for historical
+> design context only; where they conflict with this policy, this policy wins.
+>
+> ---
+
+
+
 > Repository: `wilkens83/paris`  
 > Current engine: deterministic Python quantitative betting pipeline  
 > Goal: add a practical analyst interface first, then evolve toward a production web application.
