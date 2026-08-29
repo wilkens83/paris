@@ -115,6 +115,13 @@ pip install -e '.[app]'                # streamlit + pandas + plotly
 streamlit run app/Home.py
 ```
 
+![Match Analyzer ranked board](docs/screenshots/match_analyzer_board.png)
+
+The Match Analyzer after analyzing the bundled demo — every prop ranked by model
+probability, edge, EV, grade and decision, with WAIT and AVOID kept as
+first-class outcomes. More views in [`docs/screenshots/`](docs/screenshots/)
+(prop detail with Quality Gate + sensitivity, Edge Finder, Results, Model Health).
+
 Pages:
 
 | Page | What it does |
